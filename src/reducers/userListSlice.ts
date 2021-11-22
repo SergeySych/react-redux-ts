@@ -1,31 +1,50 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit'
+import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit'
 import {IUser, IUserListState} from '../helper'
-
-const STORAGE_KEY = 'userList'
+import {getUserListFetch, postUserFetch} from '../api/index'
 
 const initialState: IUserListState = {
-    userList: []
+    userList: [],
+    fetching: false,
+    rejected: false
 }
+
+export const getUserList = createAsyncThunk(
+    'userListSlice/getUserList',
+    () => getUserListFetch()
+)
+
+export const postUser = createAsyncThunk(
+    'userListSlice/postUser',
+    (user: IUser) => postUserFetch(user)
+)
 
 export const userListSlice = createSlice({
     name: 'userList',
     initialState,
-    reducers: {
-        getUserList(state) {
-            const LS = localStorage.getItem(STORAGE_KEY)
-            state.userList = LS ?
-                JSON.parse(LS)
-                : []
-        },
-        addToList(state, action: PayloadAction<IUser>) {
-            const LS = localStorage.getItem(STORAGE_KEY)
-            const res: IUser[] = LS ? JSON.parse(LS) : []
-            res.push(action.payload)
-            state.userList = res
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(res))
-        }
+    reducers: {},
+    extraReducers: (builder) => {
+        builder.addCase(getUserList.pending, (state) => {
+            state.userList = []
+            state.fetching = true
+            state.rejected = false
+        })
+        builder.addCase(getUserList.fulfilled, (state, action: PayloadAction<IUser[]>) => {            
+            state.userList = action.payload
+            state.fetching = false
+            state.rejected = false
+        })
+        builder.addCase(getUserList.rejected, (state) => {
+            state.userList = []
+            state.fetching = false
+            state.rejected = true
+        })
+        builder.addCase(postUser.fulfilled, (state, action: PayloadAction<IUser>) => {
+            state.userList = [...state.userList, action.payload]
+            state.fetching = false
+            state.rejected = false
+        })
     }
 })
-export const {getUserList, addToList} = userListSlice.actions
+
 export const userListSelector = (state: { userListSelector: IUserListState } ) => state.userListSelector
 export default userListSlice.reducer
