@@ -16,3 +16,14 @@ export interface IUserListState {
     fetching: boolean
     rejected: boolean
 }
+
+export interface IFact {
+    fact: string
+    length: number
+} 
+
+export interface IFactsList {
+    factsList: IFact[]
+    fetching: boolean
+    rejected: boolean
+}

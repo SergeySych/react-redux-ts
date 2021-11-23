@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect, useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
 import  Form  from '../components/form/UserForm'
 import UserList from '../components/UserList/UserList'
 import { IUser } from '../helper'
@@ -15,6 +16,7 @@ const HomePage = () => {
 
     return (
         <div>
+            <Link to="/facts">To facts</Link>
             <Form
                 onSubmit={addUser}/>
             <UserList/>
